@@ -11,10 +11,10 @@ export default defineConfig({
       plugins: [
         terser({
           format: {
-            comments: false, // 去除注释
+            comments: false,
           },
           compress: {
-            drop_console: true, // 去除console.log
+            drop_console: true,
           },
         }),
       ],

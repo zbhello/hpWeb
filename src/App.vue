@@ -1,9 +1,15 @@
-<script setup lang="ts">
-window.addEventListener("devtoolschange", (event: any) => {
-  console.log(event.detail);
-});
-</script>
+<script setup lang="ts"></script>
 
-<template></template>
+<template>
+  <div class="container"></div>
+</template>
 
-<style scoped></style>
+<style scoped>
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden auto;
+}
+</style>
