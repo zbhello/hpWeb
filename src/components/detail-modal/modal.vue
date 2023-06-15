@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IMODALCARD } from "./interface";
-
+import request from "../../utils/http";
+request({
+  url: "equip/wxQrcode",
+  method: "post",
+});
 const loading = ref(false);
 withDefaults(defineProps<IMODALCARD>(), {});
 </script>
