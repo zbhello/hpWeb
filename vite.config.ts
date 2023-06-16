@@ -20,4 +20,13 @@ export default defineConfig({
       ],
     },
   },
+  server: {
+    port: 5173,
+    proxy: {
+      "/equip": {
+        target: "http://124.220.63.221:8080",
+        changeOrigin: true,
+      },
+    },
+  },
 });

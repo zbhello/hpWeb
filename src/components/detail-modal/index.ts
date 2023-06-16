@@ -1,8 +1,7 @@
-import { createVNode, render } from "vue";
-import modal from "./modal.vue";
+import { reactive } from "vue";
+import { IOption } from "../../utils/http/inteface";
+export const requestList = reactive<any>([]);
 
-export function createModal() {
-  const VNode = createVNode(modal); // 这里使用Vue的createVNode函数，因此可以省略该步骤。 创建
-
-  render(VNode, document.documentElement);
+export function createModal(options: IOption) {
+  requestList.push({ ...options });
 }

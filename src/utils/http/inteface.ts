@@ -1,16 +1,7 @@
-interface IOption {
-  method:
-    | "get"
-    | "post"
-    | "put"
-    | "delete"
-    | "head"
-    | "options"
-    | "trace"
-    | "copy";
-  url?: string;
-  params?: string;
-  data?: string;
+import { CreateAxiosDefaults } from "axios";
+
+interface IOption extends CreateAxiosDefaults {
+  type?: "wx" | "qq";
 }
 
 export type { IOption };
