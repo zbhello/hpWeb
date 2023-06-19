@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { createModal, requestList } from "./components/detail-modal/index";
+import {
+  createModal,
+  requestList,
+  watcher,
+} from "./components/detail-modal/index";
 import modal from "./components/detail-modal/modal.vue";
 import apiCof from "../api.cof";
-const wxloginRef = ref();
+import { onUnmounted } from "vue";
+
+onUnmounted(() => {
+  watcher?.();
+});
 function wxlogin() {
   createModal({ url: apiCof.wx.getQrCodeURL, method: "post", type: "wx" });
+}
+
+function qqLogin() {
+  createModal({ url: apiCof.qq.getQrCodeURL, method: "post", type: "qq" });
 }
 </script>
 
@@ -25,7 +37,11 @@ function wxlogin() {
       >
         wx登录
       </v-btn>
-      <v-btn variant="elevated" class="text-none mb-4" color="indigo-darken-3"
+      <v-btn
+        variant="elevated"
+        @click="qqLogin"
+        class="text-none mb-4"
+        color="indigo-darken-3"
         >QQ登录</v-btn
       >
     </div>
@@ -40,7 +56,7 @@ function wxlogin() {
             md="6"
           >
             <v-sheet class="ma-2 pa-2"
-              ><modal :option="item" :type="item.type"></modal>
+              ><modal :option="item" :type="item.type!"></modal>
             </v-sheet>
           </v-col>
         </v-row>

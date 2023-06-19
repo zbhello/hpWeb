@@ -6,16 +6,55 @@ import http from "../../utils/http/index"; // needed for loading default image f
 import apiCof from "../../../api.cof";
 import { reactive } from "vue";
 import { computed } from "vue";
+import { toPng } from "html-to-image";
+import { useWindowSize } from "@vueuse/core";
+import { useElementSize } from "@vueuse/core";
 const loading = ref(false);
 const props = withDefaults(defineProps<IMODALCARD>(), {});
 const loginbase64 = ref("");
 const cardTitle = ref("");
 const curUser = ref();
+const isbig = ref();
 const curData = computed(
   () =>
     useDetails.data.filter((item) => item.roleName == curUser.value)[0] ||
     useDetails.data[0]
 );
+
+//QQ部分
+
+const qqregex = /'([^']*)'/g;
+const qqMap = new Map<
+  number,
+  (qrsig: string, hash33: string, title: string) => void
+>([
+  [
+    66,
+    async (qrsig: string, hash33: string) => {
+      setTimeout(() => {
+        getStatusqq(qrsig, hash33);
+      }, 500);
+    },
+  ],
+  [
+    67,
+    (qrsig: string, hash33: string, title: string) => {
+      setTimeout(() => {
+        cardTitle.value = title;
+        getStatusqq(qrsig, hash33);
+      }, 500);
+    },
+  ],
+  [
+    666,
+    async () => {
+      loading.value = true;
+      const result = await getQrCode();
+      getStatusqq(result.headers.qrsig, result.headers.hash33);
+    },
+  ],
+  [200, () => {}],
+]);
 
 //微信部分
 const wxregex = /window\.[a-zA-Z_]+=(.*?)(?:;|$)/;
@@ -98,8 +137,41 @@ async function getStatus(uuid: string) {
   }
 }
 
-//公共部分
+async function getStatusqq(qrsin: string, hash: string) {
+  if (!qrsin || !hash) return;
+  loading.value = true;
+  const { data }: any = await http({
+    method: "post",
+    url: `${
+      (apiCof as any)[props.type].loginURL
+    }?qrsig=${qrsin}&hash33=${hash}`,
+  }).catch(() => {
+    loading.value = false;
+  });
+  // loading.value = false;
+  if (Array.isArray(data)) {
+    useDetails.data = formatWxJson(data);
+    useDetails.loaded = true;
+    loading.value = false;
 
+    //处理JSON
+  } else {
+    //内有正确返回JSON
+    const strData = data.match(qqregex);
+    if (strData) {
+      const params = strData
+        .map((match: string) => match.replace(/'/g, ""))
+        .filter((item: string) => item.trim() !== "");
+
+      qqMap.get(Number(params[0]))?.(qrsin, hash, params[3]);
+    } else {
+      qqMap.get(666)?.(qrsin, hash, "");
+    }
+  }
+}
+
+//公共部分
+const { width, height } = useWindowSize();
 async function getQrCode() {
   loading.value = true;
   useDetails.loaded = false;
@@ -113,18 +185,57 @@ async function getQrCode() {
   cardTitle.value = "请登录";
   return result;
 }
+
+const emit = defineEmits<{
+  (event: "modal-close"): void;
+}>();
+const targetheighttemp = ref(0);
+const cardWidth = computed(() => (isbig.value ? width.value * 0.9 : undefined));
+
+const cardpos = computed(() => (isbig.value ? "fixed" : "static"));
+const cardlocation = computed(() => (isbig.value ? "top" : undefined));
+
+const pngtarget = ref();
+
+const { height: targetHeight } = useElementSize(pngtarget);
+targetheighttemp.value = JSON.parse(JSON.stringify(targetHeight.value)); // memorize target height for animation frame call. 这里使用屏幕的高度来计算一些额
+function savepng() {
+  if (!pngtarget.value) return;
+  toPng(pngtarget.value).then((dataUrl: string) => {
+    const link = document.createElement("a");
+    link.href = dataUrl;
+    link.download = "screenshot.png";
+    link.click();
+  });
+}
 onMounted(async () => {
   const result = await getQrCode();
-  getStatus(result.headers.uuid);
+  props.option.type == "qq"
+    ? getStatusqq(result.headers.qrsig, result.headers.hash33)
+    : getStatus(result.headers.uuid);
   // for some reason this needs to be a string literal otherwise it can't be set using URL.revokeObject
 });
 </script>
 
 <template>
   <div>
-    <v-card :loading="loading">
-      <template #title
-        ><div class="flex items-center">
+    <v-card
+      :loading="loading"
+      :width="cardWidth"
+      :position="cardpos"
+      :location="cardlocation"
+    >
+      <template #title>
+        <div v-if="useDetails.loaded" class="flex flex-1 justify-end">
+          <v-btn class="ma-2" color="red" @click="emit('modal-close')">
+            关闭
+          </v-btn>
+          <v-btn class="ma-2" color="blue" @click="isbig = !isbig">
+            {{ isbig ? "缩小" : "放大" }}
+          </v-btn>
+          <v-btn class="ma-2" color="indigo" @click="savepng"> 保存图片 </v-btn>
+        </div>
+        <div class="flex items-center">
           <div
             class="flex items-center"
             v-if="
@@ -147,12 +258,17 @@ onMounted(async () => {
       </template>
       <template #default>
         <div
+          ref="pngtarget"
           v-if="
             useDetails.loaded &&
             useDetails.data.length > 0 &&
             Array.isArray(useDetails.data)
           "
-          class="flex flex-wrap h-96 overflow-y-auto justify-start"
+          :class="[
+            isbig
+              ? 'flex flex-wrap  justify-start'
+              : 'flex flex-wrap h-96 overflow-y-auto justify-start',
+          ]"
         >
           <template v-for="item in curData.assginDepot">
             <div class="flex flex-col items-center w-32">
