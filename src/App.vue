@@ -23,11 +23,11 @@ function qqLogin() {
 
 <template>
   <div class="main">
-    <div
+    <!-- <div
       class="flex justify-center flex1 text-3xl font-semibold font-sans mt-10"
     >
       和平精英获取装备
-    </div>
+    </div> -->
     <div class="main-action flex w-52 mt-5 justify-between">
       <v-btn
         variant="elevated"

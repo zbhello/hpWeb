@@ -192,7 +192,20 @@ const emit = defineEmits<{
 const targetheighttemp = ref(0);
 const cardWidth = computed(() => (isbig.value ? width.value * 0.9 : undefined));
 const isSelectbg = ref(false);
-const bgColor = ref("");
+const bgColor = ref("#333");
+const fontColor = ref("#fff");
+const isSelectfontcolor = ref(false);
+const curuserData = computed(() =>
+  (curData as any).value.assginDepot.sort((a: any, b: any) => {
+    if (a.quality < b.quality) {
+      return 1;
+    }
+    if (a.quality > b.quality) {
+      return -1;
+    }
+    return 0;
+  })
+);
 const cardpos = computed(() => (isbig.value ? "absolute" : "static"));
 const cardlocation = computed(() => (isbig.value ? "top" : undefined));
 
@@ -209,6 +222,13 @@ function savepng() {
     link.download = "screenshot.png";
     link.click();
   });
+}
+function salce() {
+  if (isbig.value) {
+    isSelectbg.value = false;
+    isSelectfontcolor.value = false;
+  }
+  isbig.value = !isbig.value;
 }
 onMounted(async () => {
   const result = await getQrCode();
@@ -230,6 +250,17 @@ onMounted(async () => {
       <template #title>
         <div v-if="useDetails.loaded" class="flex flex-1 justify-end">
           <v-color-picker
+            v-if="isSelectfontcolor"
+            v-model:model-value="fontColor"
+          ></v-color-picker>
+          <v-btn
+            class="ma-2"
+            color="indigo"
+            @click="(isbig = true) && (isSelectfontcolor = !isSelectfontcolor)"
+          >
+            字体颜色
+          </v-btn>
+          <v-color-picker
             v-if="isSelectbg"
             v-model:model-value="bgColor"
           ></v-color-picker>
@@ -243,7 +274,7 @@ onMounted(async () => {
           <v-btn class="ma-2" color="red" @click="emit('modal-close')">
             关闭
           </v-btn>
-          <v-btn class="ma-2" color="blue" @click="isbig = !isbig">
+          <v-btn class="ma-2" color="blue" @click="salce">
             {{ isbig ? "缩小" : "放大" }}
           </v-btn>
           <v-btn class="ma-2" color="indigo" @click="savepng"> 保存图片 </v-btn>
@@ -277,14 +308,34 @@ onMounted(async () => {
             useDetails.data.length > 0 &&
             Array.isArray(useDetails.data)
           "
-          :style="{ backgroundColor: bgColor }"
+          :style="{ backgroundColor: bgColor, color: fontColor }"
           :class="[
             isbig
               ? 'flex flex-wrap  justify-start'
               : 'flex flex-wrap h-96 overflow-y-auto justify-start',
           ]"
         >
-          <template v-for="item in curData.assginDepot">
+          <div class="flex flex-col w-full">
+            <div class="flex font-bold text-xl justify-around">
+              <div>{{ curData?.roleName }}</div>
+              <div>{{ curData?.roleText[0] }}</div>
+              <div>{{ curData?.roleText[1] }}</div>
+              <div>{{ curData?.roleText[2] }}</div>
+            </div>
+            <div class="flex justify-around font-bold text-xl">
+              <div>时装-{{ curData.depot[0]?.count }}</div>
+              <div>战备-{{ curData.depot[4]?.count }}</div>
+            </div>
+            <div class="flex justify-around font-bold text-xl">
+              <div>
+                粉装-{{
+                  curuserData?.filter((item: any) => item.quality == 6).length
+                }}
+              </div>
+              <div>套装-{{ curData.depot[0]?.detail[0]?.items?.length }}</div>
+            </div>
+          </div>
+          <template v-for="item in curuserData">
             <div class="flex flex-col items-center w-32">
               <img class="w-20 h-20" :src="item.imageUrl" alt="" />
               <div>{{ item.itemName }}</div>
