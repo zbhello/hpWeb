@@ -9,14 +9,11 @@ export function createModal(options: IOption) {
 }
 
 function watchinn() {
-  console.log(123444);
-
   watcher = watch(
     () => requestList,
     (newVal) => {
-      console.log(newVal.length);
       if (!newVal) return;
-      if (newVal.length > 8) requestList.shift();
+      // if (newVal.length > 8) requestList.shift();
     },
     {
       deep: true,

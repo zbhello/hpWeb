@@ -9,6 +9,7 @@ import { computed } from "vue";
 import { toPng } from "html-to-image";
 import { useWindowSize } from "@vueuse/core";
 import { useElementSize } from "@vueuse/core";
+import { getCurrentInstance } from "vue";
 const loading = ref(false);
 const props = withDefaults(defineProps<IMODALCARD>(), {});
 const loginbase64 = ref("");
@@ -208,7 +209,7 @@ const curuserData = computed(() =>
 );
 const cardpos = computed(() => (isbig.value ? "absolute" : "static"));
 const cardlocation = computed(() => (isbig.value ? "top" : undefined));
-
+const isOpen = ref(true);
 const pngtarget = ref();
 
 const { height: targetHeight } = useElementSize(pngtarget);
@@ -335,7 +336,7 @@ onMounted(async () => {
               <div>套装-{{ curData.depot[0]?.detail[0]?.items?.length }}</div>
             </div>
           </div>
-          <template v-for="item in curuserData">
+          <template v-for="item in curuserData" :key="item.uin">
             <div class="flex flex-col items-center w-32">
               <img class="w-20 h-20" :src="item.imageUrl" alt="" />
               <div>{{ item.itemName }}</div>

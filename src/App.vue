@@ -13,11 +13,28 @@ onUnmounted(() => {
   watcher?.();
 });
 function wxlogin() {
-  createModal({ url: apiCof.wx.getQrCodeURL, method: "post", type: "wx" });
+  createModal({
+    url: apiCof.wx.getQrCodeURL,
+    method: "post",
+    type: "wx",
+    timeTmp: new Date().getTime(),
+  });
 }
 
 function qqLogin() {
-  createModal({ url: apiCof.qq.getQrCodeURL, method: "post", type: "qq" });
+  createModal({
+    url: apiCof.qq.getQrCodeURL,
+    method: "post",
+    type: "qq",
+    timeTmp: new Date().getTime(),
+  });
+}
+
+function modalClose(index: number) {
+  requestList.splice(
+    requestList.findIndex((item) => item.timeTmp == index),
+    1
+  );
 }
 </script>
 
@@ -49,14 +66,18 @@ function qqLogin() {
       <v-container>
         <v-row no-gutters>
           <v-col
-            v-for="(item, index) in requestList"
-            :key="index"
+            v-for="item in requestList"
+            :key="item.timeTmp"
             cols="3"
             xl="3"
             md="6"
           >
             <v-sheet class="ma-2 pa-2"
-              ><modal :option="item" :type="item.type!"></modal>
+              ><modal
+                :option="item"
+                :type="item.type!"
+                @modal-close="modalClose(item.timeTmp!)"
+              ></modal>
             </v-sheet>
           </v-col>
         </v-row>
