@@ -191,8 +191,9 @@ const emit = defineEmits<{
 }>();
 const targetheighttemp = ref(0);
 const cardWidth = computed(() => (isbig.value ? width.value * 0.9 : undefined));
-
-const cardpos = computed(() => (isbig.value ? "fixed" : "static"));
+const isSelectbg = ref(false);
+const bgColor = ref("");
+const cardpos = computed(() => (isbig.value ? "absolute" : "static"));
 const cardlocation = computed(() => (isbig.value ? "top" : undefined));
 
 const pngtarget = ref();
@@ -200,6 +201,7 @@ const pngtarget = ref();
 const { height: targetHeight } = useElementSize(pngtarget);
 targetheighttemp.value = JSON.parse(JSON.stringify(targetHeight.value)); // memorize target height for animation frame call. 这里使用屏幕的高度来计算一些额
 function savepng() {
+  if (!isbig.value) isbig.value = true;
   if (!pngtarget.value) return;
   toPng(pngtarget.value).then((dataUrl: string) => {
     const link = document.createElement("a");
@@ -227,6 +229,13 @@ onMounted(async () => {
     >
       <template #title>
         <div v-if="useDetails.loaded" class="flex flex-1 justify-end">
+          <v-color-picker
+            v-if="isSelectbg"
+            v-model:model-value="bgColor"
+          ></v-color-picker>
+          <v-btn class="ma-2" color="indigo" @click="isSelectbg = !isSelectbg">
+            选择颜色
+          </v-btn>
           <v-btn class="ma-2" color="red" @click="emit('modal-close')">
             关闭
           </v-btn>
@@ -264,6 +273,7 @@ onMounted(async () => {
             useDetails.data.length > 0 &&
             Array.isArray(useDetails.data)
           "
+          :style="{ backgroundColor: bgColor }"
           :class="[
             isbig
               ? 'flex flex-wrap  justify-start'
