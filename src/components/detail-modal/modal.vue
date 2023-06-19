@@ -233,7 +233,11 @@ onMounted(async () => {
             v-if="isSelectbg"
             v-model:model-value="bgColor"
           ></v-color-picker>
-          <v-btn class="ma-2" color="indigo" @click="isSelectbg = !isSelectbg">
+          <v-btn
+            class="ma-2"
+            color="indigo"
+            @click="(isbig = true) && (isSelectbg = !isSelectbg)"
+          >
             选择颜色
           </v-btn>
           <v-btn class="ma-2" color="red" @click="emit('modal-close')">
