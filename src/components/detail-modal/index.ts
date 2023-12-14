@@ -13,7 +13,7 @@ function watchinn() {
     () => requestList,
     (newVal) => {
       if (!newVal) return;
-      if (newVal.length > 8) requestList.shift();
+      if (newVal.length > 1) requestList.shift();
     },
     {
       deep: true,

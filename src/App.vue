@@ -8,26 +8,40 @@ import {
 import modal from "./components/detail-modal/modal.vue";
 import apiCof from "../api.cof";
 import { onUnmounted } from "vue";
-
+const gameRef = ref();
 onUnmounted(() => {
   watcher?.();
 });
 function wxlogin() {
-  createModal({
+  console.log(gameRef.value)
+  gameRef.value.getQrCode({
     url: apiCof.wx.getQrCodeURL,
     method: "post",
     type: "wx",
     timeTmp: new Date().getTime(),
-  });
+  })
+  // createModal({
+  //   url: apiCof.wx.getQrCodeURL,
+  //   method: "post",
+  //   type: "wx",
+  //   timeTmp: new Date().getTime(),
+  // });
 }
 
 function qqLogin() {
-  createModal({
+  console.log(gameRef.value)
+  gameRef.value.getQrCode({
     url: apiCof.qq.getQrCodeURL,
     method: "post",
     type: "qq",
     timeTmp: new Date().getTime(),
-  });
+  })
+  // createModal({
+  //   url: apiCof.qq.getQrCodeURL,
+  //   method: "post",
+  //   type: "qq",
+  //   timeTmp: new Date().getTime(),
+  // });
 }
 
 function modalClose(index: number) {
@@ -45,7 +59,7 @@ function modalClose(index: number) {
     >
       和平精英获取装备
     </div> -->
-    <div class="main-action flex w-52 mt-5 justify-between">
+    <div class=" flex w-52 mt-5 justify-between">
       <v-btn
         variant="elevated"
         class="text-none mb-4"
@@ -62,27 +76,16 @@ function modalClose(index: number) {
         >QQ登录</v-btn
       >
     </div>
-    <div class="card-container">
-      <v-container>
-        <v-row no-gutters>
+        <v-row  no-gutters>
           <v-col
-            v-for="item in requestList"
-            :key="item.timeTmp"
-            cols="3"
-            xl="3"
-            md="6"
+            cols="12"
           >
-            <v-sheet class="ma-2 pa-2"
-              ><modal
-                :option="item"
-                :type="item.type!"
-                @modal-close="modalClose(item.timeTmp!)"
-              ></modal>
+            <v-sheet  max-width="900"  class=" pa-5">
+              <modal ref="gameRef"></modal>
             </v-sheet>
           </v-col>
         </v-row>
-      </v-container>
-    </div>
+
   </div>
 </template>
 
@@ -95,7 +98,5 @@ function modalClose(index: number) {
   box-sizing: border-box;
   overflow: hidden auto;
 }
-.card-container {
-  width: 100%;
-}
+
 </style>

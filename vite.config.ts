@@ -21,10 +21,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
+    port: 3000,
     proxy: {
       "/equip": {
-        target: "http://124.220.63.221:8080",
+        target: "http://192.168.110.115:8080",
         changeOrigin: true,
       },
     },
